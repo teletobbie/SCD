@@ -1,0 +1,52 @@
+!@encoding CP1252
+model ModelName
+!uses "mmxprs"; !gain access to the Xpress-Optimizer solver
+uses "mmxprs"
+
+declarations
+PLANTS= 1..6
+DEMAND=1..7
+M=100000000
+c: real !constant cost per quintal per kilometer
+
+! parameters
+d: array(DEMAND) of integer ! amount demanded of location j per day
+t: array(PLANTS) of integer ! throughput production place i per day
+f: array(PLANTS) of integer ! fixed costs using production place i per year
+v: array(PLANTS) of real ! variable costs producing hydrogen quintals at production place i
+k: array(PLANTS,DEMAND) of integer ! kilometers between production place i to demand point j. 
+ 
+!decision variables
+x: array(PLANTS,DEMAND) of mpvar !amount of hydrogen quintals from production place i to demand point j
+y: array(PLANTS) of mpvar !open production place or not =1 production place is open =0 not open (binary)
+end-declarations
+
+initializations from "data.bat"
+	c;
+	d;
+	t;
+	f;
+	v;
+	k;
+end-initializations
+
+TotalCost := sum(i in PLANTS, j in DEMAND) (v(i)*x(i,j) +2*(c*k(i,j)*x(i,j)))+sum(i in PLANTS)f(i)*y(i)
+
+!add constraints
+forall(i in PLANTS) y(i) is_binary ! set list y to binary variables 
+forall(j in DEMAND) sum(i in PLANTS) x(i,j) = d(j) !amount of hydrogen quintals has to be bigger or equal to the demand j
+forall(i in PLANTS) sum(j in DEMAND) x(i,j) <= M*y(i) !amount of hydrogen quintal must be smaller or equal to M times y(i) plant is open or not
+forall(i in PLANTS, j in DEMAND) x(i,j) >= 0 !sum of all x(i,j) must be bigger or equal than 0
+
+!objective function
+minimize(TotalCost)
+
+writeln("Total daily cost is ", round(getobjval), ",-")
+writeln("\nPlants opened:")
+forall(i in PLANTS)
+	writeln("Plant ",i, ": ", getsol(y(i)))
+writeln("\nHydrogen quantity:")
+forall(i in PLANTS, j in DEMAND)
+	writeln("x(",i,",",j,") = ", getsol(x(i,j))) 
+
+end-model

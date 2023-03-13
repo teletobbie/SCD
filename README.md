@@ -1,9 +1,10 @@
-# SCD
+# Supply Chain Dynamics
 
 ## Content of this repo
 - includes the assignments during the course 
+- assignments consisted of two parts; part I was an implementation of an mathematical model using mosel and part II was an simple cost analysis on an hydrogen case in Estonia  
 
-## Course description
+## Overall course description
 Upon completion of the course the student is able to:
 1. Identify strategic, tactical and operational decisions for certain transportation and logistics problems
 2. Model and assess strategic and tactical decisions
